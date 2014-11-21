@@ -1,18 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- BigBlueButton Client build.xml for use by Hudson builds.   -->
 <project name="BigBlueButton Client" basedir="." default="clean-build-all" >
-    	<property environment="env" />
-    	<property name="STATIC_RSL" value="true" />
-	    <property name="DEBUG" value="true" />
-    	<property name="BUILD_ENV" value="DEV" />
-    	<property name="FLEX_HOME" value="${env.FLEX_HOME}" />
-    	<property name="LOCALE_DIR" value="${FLEX_HOME}/frameworks/locale"/>
-    	<property name="BASE_DIR" value="${basedir}" />
-      <property name="themeFile" value="BBBDefault.css"/>
-	    <property name="blackTheme" value="BBBBlack.css"/>
-	    <property name="LOCALE" value="en_US" />
-	     <property name="RESOURCES_DIR" value="${BASE_DIR}/resources" />	
-	<property name="PROD_RESOURCES_DIR" value="${RESOURCES_DIR}/prod" />	
+	<property environment="env" />
+	<property name="STATIC_RSL" value="false" />
+	<property name="DEBUG" value="true" />
+	<property name="BUILD_ENV" value="DEV" />
+	<property name="FLEX_HOME" value="${env.FLEX_HOME}" />
+	<property name="RSLS_DIR" value="${FLEX_HOME}/frameworks/rsls" />
+	<property name="LOCALE_DIR" value="${FLEX_HOME}/frameworks/locale"/>
+	<property name="BASE_DIR" value="${basedir}" />
+	<property name="themeFile" value="BBBDefault.css"/>
+	<property name="blackTheme" value="BBBBlack.css"/>
+	<property name="LOCALE" value="en_US" />
+	<property name="RESOURCES_DIR" value="${BASE_DIR}/resources" />
+	<property name="PROD_RESOURCES_DIR" value="${RESOURCES_DIR}/prod" />
 	<property name="SRC_DIR" value="${BASE_DIR}/src" />
 		
 	<property name="OUTPUT_DIR" value="${BASE_DIR}/client" />
@@ -84,6 +85,7 @@
 				mxml.compatibility-version="3.0.0" 
 				swf-version="13" 
 				optimize="true">
+				<static-link-runtime-shared-libraries>${STATIC_RSL}</static-link-runtime-shared-libraries>
 			</mxmlc>
 		</sequential>
 	</target>
@@ -96,6 +98,7 @@
 	        mxml.compatibility-version="3.0.0" 
 	        swf-version="13" 
 	        optimize="true">
+	        <static-link-runtime-shared-libraries>${STATIC_RSL}</static-link-runtime-shared-libraries>
 	      </mxmlc>
 	    </sequential>
 	  </target>
@@ -156,6 +159,7 @@
 				<locale>@{locale}</locale>
 				<target-player>11</target-player>
 				<source-path path-element="locale/{locale}"/>
+				<static-link-runtime-shared-libraries>${STATIC_RSL}</static-link-runtime-shared-libraries>
 				
 				<!--
 				  Look into bundles.txt to find out what resources to include here.
@@ -309,7 +313,7 @@
 				  		ralam - sept 20, 2011
 					-->
 					<resource-bundle-list>bundles.txt</resource-bundle-list>
-	        			<static-link-runtime-shared-libraries>${STATIC_RSL}</static-link-runtime-shared-libraries>
+					<static-link-runtime-shared-libraries>${STATIC_RSL}</static-link-runtime-shared-libraries>
 				
 					<compiler.library-path dir="@{flex}/frameworks" append="true">
 						<include name="libs" />
@@ -392,6 +396,23 @@
 		
 	<target name="compile-bbb" depends="build-main-chat-present, build-deskshare-phone-video-whiteboard-dyn, copy-resource-files"
 			description="Compiling the BBB without copying config.xml">	
+	</target>
+
+	<macrodef name="get-swf">
+		<attribute name="target" description="Flex library name" />
+		<attribute name="todir" default="${BASE_DIR}/client/rsls" description="Copy to" />
+		<attribute name="rsls" default="${RSLS_DIR}" description="Flex's RSLS path" />
+		<sequential>
+			<copy file="@{rsls}/@{target}_4.13.0.20140701.swf" todir="@{todir}" />
+		</sequential>
+	</macrodef>
+
+	<target name="copy-flex-rsls" description="Get .swf files from flex dir">
+		<echo message="Coping Flex lib to client folder" />
+		<get-swf target="framework" />
+		<get-swf target="rpc" />
+		<get-swf target="mx" />
+		<get-swf target="charts" />
 	</target>
 
 	<target name="copy-config-if-needed">
