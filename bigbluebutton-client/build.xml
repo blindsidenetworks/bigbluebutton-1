@@ -78,7 +78,7 @@
 		</foreach>
 	</target>
 		
-	<target name="branding" depends="init-ant-contrib">
+	<target name="branding" depends="init-ant-contrib, copy-flex-rsls">
 		<sequential>
 			<mxmlc file="${BASE_DIR}/branding/default/style/css/${themeFile}" 
 				output="${OUTPUT_DIR}/branding/css/${themeFile}.swf" 
@@ -92,7 +92,7 @@
 		</sequential>
 	</target>
 	
-	 <target name="branding-black" depends="init-ant-contrib">
+	 <target name="branding-black" depends="init-ant-contrib, copy-flex-rsls">
 	    <sequential>
 	      <mxmlc file="${BASE_DIR}/branding/default/style/css/${blackTheme}" 
 	        output="${OUTPUT_DIR}/branding/css/${blackTheme}.swf" 
@@ -110,7 +110,7 @@
     	<build-main src="${SRC_DIR}" target="${BBB_MAIN_TEST}" />
 	</target>
 
-	<target name="build-locale">
+	<target name="build-locale" depends="copy-flex-rsls">
 		<echo message="Locale dir is ${supportedlocale}. Extract locale name." />
 	   	<basename property="locale.name" file="${supportedlocale}"/>  
    		<echo message="Locale name is ${locale.name}"/>
@@ -188,7 +188,7 @@
 		</sequential>
 	</macrodef>
 	
-	<target name="build-bbb-main" description="Compile BigBlueButton Main">
+	<target name="build-bbb-main" description="Compile BigBlueButton Main" depends="copy-flex-rsls">
 		<build-main src="${SRC_DIR}" target="${BBB_MAIN}" />
 		
 		<echo message="Copying common assets for BBB Main" />
@@ -197,23 +197,23 @@
 		</copy>		
 	</target>
 
-  <target name="build-broadcast" description="Compile Broadcast Module" >
+  <target name="build-broadcast" description="Compile Broadcast Module" depends="copy-flex-rsls">
     <build-module src="${SRC_DIR}" target="${BROADCAST}" />
   </target>
   	
-	<target name="build-chat" description="Compile Chat Module">
+	<target name="build-chat" description="Compile Chat Module" depends="copy-flex-rsls">
 		<build-module src="${SRC_DIR}" target="${CHAT}" />
 	</target>
   
-  <target name="build-notes" description="Compile Notes Module">
+  <target name="build-notes" description="Compile Notes Module" depends="copy-flex-rsls">
     <build-module src="${SRC_DIR}" target="${NOTES}" />
   </target>
 	
-	<target name="build-polling" description="Compile Polling Module">
+	<target name="build-polling" description="Compile Polling Module" depends="copy-flex-rsls">
 		<build-module src="${SRC_DIR}" target="${POLLING}" />
 	</target>
 	
-	<target name="build-present" description="Compile Present Module">
+	<target name="build-present" description="Compile Present Module" depends="copy-flex-rsls">
 		<build-module src="${SRC_DIR}" target="${PRESENT}" />
 	</target>
 
@@ -222,44 +222,44 @@
 		<build-module-no-link src="${SRC_DIR}" target="${DESKSHARE_SA}" />
 	</target>
   
-  <target name="build-deskshare-no-linker" description="Compile Deskshare Module without the linker">
+  <target name="build-deskshare-no-linker" description="Compile Deskshare Module without the linker" depends="copy-flex-rsls">
     <echo message="Compiling deskshare without optimization." />
     <build-module-no-link src="${SRC_DIR}" target="${DESKSHARE}" /> 
   </target>
     
-  <target name="build-webcam-preview-standalone" description="Compile Webcam Preview Standalone Application">
+  <target name="build-webcam-preview-standalone" description="Compile Webcam Preview Standalone Application" depends="copy-flex-rsls">
     <echo message="Compiling webcam preview standalone without optimization." />
     <build-module-no-link src="${SRC_DIR}" target="${CAM_PREVIEW_SA}" />
   </target>
 
-  <target name="build-webcam-view-standalone" description="Compile Webcam View Standalone Application">
+  <target name="build-webcam-view-standalone" description="Compile Webcam View Standalone Application" depends="copy-flex-rsls">
     <echo message="Compiling webcam view standalone without optimization." />
     <build-module-no-link src="${SRC_DIR}" target="${CAM_VIEW_SA}" />
   </target>
 
-  <target name="build-mic-check" description="Compile Microphone Check Application">
+  <target name="build-mic-check" description="Compile Microphone Check Application" depends="copy-flex-rsls">
     <echo message="Compiling Microphone Check Application." />
     <build-module-no-link src="${SRC_DIR}" target="${MICROPHONE_CHECK}" />
   </target>
 
-  <target name="build-cam-check" description="Compile Camera Check Application">
+  <target name="build-cam-check" description="Compile Camera Check Application" depends="copy-flex-rsls">
     <echo message="Compiling Camera Check Application." />
     <build-module-no-link src="${SRC_DIR}" target="${CAMERA_CHECK}" />
   </target>
    
-  <target name="build-conn-check" description="Compile Connection Check Application">
+  <target name="build-conn-check" description="Compile Connection Check Application" depends="copy-flex-rsls">
     <echo message="Compiling Connection Check Application." />
     <build-module-no-link src="${SRC_DIR}" target="${CONNECTION_CHECK}" />
   </target>
           	
-	<target name="build-deskshare" description="Compile Deskshare Module">
+	<target name="build-deskshare" description="Compile Deskshare Module" depends="copy-flex-rsls">
 		<build-module src="${SRC_DIR}" target="${DESKSHARE}" />
 		<echo message="Copying deskshare applet for Deskshare Module" />
 		<copy file="${PROD_RESOURCES_DIR}/bbb-deskshare-applet-unsigned-0.9.0.jar" todir="${OUTPUT_DIR}"/>		
 		<copy file="${PROD_RESOURCES_DIR}/bbb-deskshare-applet-0.9.0.jar" todir="${OUTPUT_DIR}"/>		
 	</target>
 	
-	<target name="build-phone" description="Compile Phone Module">
+	<target name="build-phone" description="Compile Phone Module" depends="copy-flex-rsls">
 		<build-module src="${SRC_DIR}" target="${PHONE}" />
 		
 		<echo message="Copying assets for Phone Module" />
@@ -268,23 +268,23 @@
 		</copy>		
 	</target>
 	
-	<target name="build-video" description="Compile Video Module">
+	<target name="build-video" description="Compile Video Module" depends="copy-flex-rsls">
 		<build-module src="${SRC_DIR}" target="${VIDEO}" />
 	</target>
 
-	<target name="build-videodock" description="Compile Video Dock Module">
+	<target name="build-videodock" description="Compile Video Dock Module" depends="copy-flex-rsls">
 		<build-module src="${SRC_DIR}" target="${VIDEO_DOCK}" />
 	</target>
 		
-	<target name="build-whiteboard" description="Compile Whiteboard Module">
+	<target name="build-whiteboard" description="Compile Whiteboard Module" depends="copy-flex-rsls">
 		<build-module src="${SRC_DIR}" target="${WHITEBOARD}" />
 	</target>
 	
-	<target name="build-layout" description="Compile Layout Module">
+	<target name="build-layout" description="Compile Layout Module" depends="copy-flex-rsls">
 		<build-module src="${SRC_DIR}" target="${LAYOUT}" />
 	</target>
 	
-	<target name="build-users" description="Compile Users Module">
+	<target name="build-users" description="Compile Users Module" depends="copy-flex-rsls">
 			<build-module src="${SRC_DIR}" target="${USERS}" />
 	</target>
 	
@@ -414,12 +414,17 @@
 	</macrodef>
 
 	<target name="copy-flex-rsls" depends="init-flex-config" description="Get .swf files from flex dir">
-		<echo message="Coping Flex lib to client folder" />
-		<xmlproperty file="${FLEX_HOME}/flex-sdk-description.xml" collapseAttributes="true"/>
-		<get-swf target="framework" version="${flex-sdk-description.version}" build="${flex-sdk-description.build}" />
-		<get-swf target="rpc" version="${flex-sdk-description.version}" build="${flex-sdk-description.build}" />
-		<get-swf target="mx" version="${flex-sdk-description.version}" build="${flex-sdk-description.build}" />
-		<get-swf target="charts" version="${flex-sdk-description.version}" build="${flex-sdk-description.build}" />
+		<if>
+			<equals arg1="${STATIC_RSL}" arg2="false"/>
+			<then>
+				<echo message="Coping Flex lib to client folder" />
+				<xmlproperty file="${FLEX_HOME}/flex-sdk-description.xml" collapseAttributes="true"/>
+				<get-swf target="framework" version="${flex-sdk-description.version}" build="${flex-sdk-description.build}" />
+				<get-swf target="rpc" version="${flex-sdk-description.version}" build="${flex-sdk-description.build}" />
+				<get-swf target="mx" version="${flex-sdk-description.version}" build="${flex-sdk-description.build}" />
+				<get-swf target="charts" version="${flex-sdk-description.version}" build="${flex-sdk-description.build}" />
+			</then>
+		</if>
 	</target>
 
 	<target name="init-flex-config" description="Copy flex-config.xml and make path modifications">
