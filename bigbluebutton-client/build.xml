@@ -404,10 +404,12 @@
 
 	<macrodef name="get-swf">
 		<attribute name="target" description="Flex library name" />
+		<attribute name="version" />
+		<attribute name="build" />
 		<attribute name="todir" default="${BASE_DIR}/client/rsls" description="Copy to" />
 		<attribute name="rsls" default="${RSLS_DIR}" description="Flex's RSLS path" />
 		<sequential>
-			<copy file="@{rsls}/@{target}_4.13.0.20140701.swf" todir="@{todir}" />
+			<copy file="@{rsls}/@{target}_@{version}.@{build}.swf" todir="@{todir}" />
 		</sequential>
 	</macrodef>
 
@@ -416,10 +418,11 @@
 			<equals arg1="${STATIC_RSL}" arg2="false"/>
 		<then>
 			<echo message="Coping Flex lib to client folder" />
-			<get-swf target="framework" />
-			<get-swf target="rpc" />
-			<get-swf target="mx" />
-			<get-swf target="charts" />
+			<xmlproperty file="${FLEX_HOME}/flex-sdk-description.xml" collapseAttributes="true"/>
+			<get-swf target="framework" version="${flex-sdk-description.version}" build="${flex-sdk-description.build}" />
+			<get-swf target="rpc" version="${flex-sdk-description.version}" build="${flex-sdk-description.build}" />
+			<get-swf target="mx" version="${flex-sdk-description.version}" build="${flex-sdk-description.build}" />
+			<get-swf target="charts" version="${flex-sdk-description.version}" build="${flex-sdk-description.build}" />
 		</then>
 		</if>
 	</target>
