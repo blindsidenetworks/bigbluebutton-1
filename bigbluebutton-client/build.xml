@@ -6,8 +6,9 @@
 	<property name="DEBUG" value="true" />
 	<property name="BUILD_ENV" value="DEV" />
 	<property name="FLEX_HOME" value="${env.FLEX_HOME}" />
-	<property name="RSLS_DIR" value="${FLEX_HOME}/frameworks/rsls" />
-	<property name="LOCALE_DIR" value="${FLEX_HOME}/frameworks/locale"/>
+	<property name="FRAMEWORKS_DIR" value="${FLEX_HOME}/frameworks" />
+	<property name="RSLS_DIR" value="${FRAMEWORKS_DIR}/rsls" />
+	<property name="LOCALE_DIR" value="${FRAMEWORKS_DIR}/locale"/>
 	<property name="BASE_DIR" value="${basedir}" />
 	<property name="themeFile" value="BBBDefault.css"/>
 	<property name="blackTheme" value="BBBBlack.css"/>
@@ -47,7 +48,7 @@
 		<taskdef resource="net/sf/antcontrib/antcontrib.properties" classpath="${ant-contrib.jar}"/>
 	</target>
 	  
-	<target name="locales" depends="init-ant-contrib">
+	<target name="locales" depends="init-ant-contrib, copy-flex-rsls">
 		<echo message="Checking if locale output dir exists"/>
 		<available file="${OUTPUT_DIR}/locale" type="file" property="locale.dir.present"/>
 		<if> 
@@ -85,6 +86,7 @@
 				mxml.compatibility-version="3.0.0" 
 				swf-version="13" 
 				optimize="true">
+				<load-config filename="${BASE_DIR}/client/flex-config.xml" />
 				<static-link-runtime-shared-libraries>${STATIC_RSL}</static-link-runtime-shared-libraries>
 			</mxmlc>
 		</sequential>
@@ -98,6 +100,7 @@
 	        mxml.compatibility-version="3.0.0" 
 	        swf-version="13" 
 	        optimize="true">
+	        <load-config filename="${BASE_DIR}/client/flex-config.xml" />
 	        <static-link-runtime-shared-libraries>${STATIC_RSL}</static-link-runtime-shared-libraries>
 	      </mxmlc>
 	    </sequential>
@@ -142,7 +145,7 @@
        </sequential>
 	</target>
 	
-	<target name="localize">
+	<target name="localize" depends="init-ant-contrib, copy-flex-rsls">
 	 <compileLocale locale="${LOCALE}" /> 
 	</target>
 		
@@ -159,6 +162,7 @@
 				<locale>@{locale}</locale>
 				<target-player>11</target-player>
 				<source-path path-element="locale/{locale}"/>
+				<load-config filename="${BASE_DIR}/client/flex-config.xml" />
 				<static-link-runtime-shared-libraries>${STATIC_RSL}</static-link-runtime-shared-libraries>
 				
 				<!--
@@ -304,7 +308,7 @@
 			<sequential>
 				<mxmlc file="@{src}/@{target}.mxml" output="${OUTPUT_DIR}/@{target}.swf" debug="${DEBUG}" mxml.compatibility-version="3.0.0" swf-version="13" optimize="true" link-report="linker-report.xml">
 					<target-player>11</target-player>
-					<load-config filename="@{flex}/frameworks/flex-config.xml" />
+					<load-config filename="${BASE_DIR}/client/flex-config.xml" />
 					<source-path path-element="@{flex}/frameworks" />
 					
 					<!--
@@ -343,7 +347,7 @@
 		<sequential>
 			<mxmlc file="@{src}/@{target}.mxml" output="${OUTPUT_DIR}/@{target}.swf" debug="${DEBUG}" mxml.compatibility-version="3.0.0" swf-version="13">
 				<target-player>11</target-player>
-				<load-config filename="@{flex}/frameworks/flex-config.xml" />
+				<load-config filename="${BASE_DIR}/client/flex-config.xml" />
 				<source-path path-element="@{flex}/frameworks" />
 				<static-link-runtime-shared-libraries>${STATIC_RSL}</static-link-runtime-shared-libraries>
 
@@ -370,7 +374,7 @@
 		<sequential>
 			<mxmlc file="@{src}/@{target}.mxml" output="${OUTPUT_DIR}/@{target}.swf" debug="${DEBUG}" mxml.compatibility-version="3.0.0" swf-version="13" optimize="true" load-externs="linker-report.xml">
 				<target-player>11</target-player>
-				<load-config filename="@{flex}/frameworks/flex-config.xml" />
+				<load-config filename="${BASE_DIR}/client/flex-config.xml" />
 				<source-path path-element="@{flex}/frameworks" />
 				<static-link-runtime-shared-libraries>${STATIC_RSL}</static-link-runtime-shared-libraries>
 
@@ -407,12 +411,33 @@
 		</sequential>
 	</macrodef>
 
-	<target name="copy-flex-rsls" description="Get .swf files from flex dir">
-		<echo message="Coping Flex lib to client folder" />
-		<get-swf target="framework" />
-		<get-swf target="rpc" />
-		<get-swf target="mx" />
-		<get-swf target="charts" />
+	<target name="copy-flex-rsls" depends="init-flex-config" description="Get .swf files from flex dir">
+		<if>
+			<equals arg1="${STATIC_RSL}" arg2="false"/>
+		<then>
+			<echo message="Coping Flex lib to client folder" />
+			<get-swf target="framework" />
+			<get-swf target="rpc" />
+			<get-swf target="mx" />
+			<get-swf target="charts" />
+		</then>
+		</if>
+	</target>
+
+	<target name="init-flex-config" description="Copy flex-config.xml and make path modifications">
+		<if>
+			<available file="${BASE_DIR}/client/flex-config.xml" />
+		<else>
+			<echo message="Getting flex-config.xml" />
+			<copy file="${FRAMEWORKS_DIR}/flex-config.xml" todir="${BASE_DIR}/client" />
+			<replace file="${BASE_DIR}/client/flex-config.xml">
+				<replacefilter token="&lt;path-element&gt;" value="&lt;path-element&gt;${FRAMEWORKS_DIR}/" />
+				<replacefilter token="&lt;manifest&gt;" value="&lt;manifest&gt;${FRAMEWORKS_DIR}/" />
+				<replacefilter token="&lt;filename&gt;" value="&lt;filename&gt;${FRAMEWORKS_DIR}/" />
+				<replacefilter token="&lt;rsl-url&gt;" value="&lt;rsl-url&gt;rsls/" />
+			</replace>
+		</else>
+		</if>
 	</target>
 
 	<target name="copy-config-if-needed">
@@ -533,14 +558,14 @@
 
 	<!-- NOTE: compile-deskshare-standalone MUST come first before compile-bbb as we need the deskshare-standalone
 				to be compiled withouth being optimized by using the linker -->
-	<target name="clean-build-bbb" depends="clean, init-ant-contrib, generate-html-wrapper, compile-deskshare-standalone, 
+	<target name="clean-build-bbb" depends="clean, init-ant-contrib, generate-html-wrapper, copy-flex-rsls, compile-deskshare-standalone, 
 	                                        build-webcam-preview-standalone, build-webcam-view-standalone, compile-bbb" 
 			description="Build BBB client skipping compiling of locales"/>	
-	<target name="clean-build-all" depends="clean, init-ant-contrib, generate-html-wrapper, compile-deskshare-standalone, build-mic-check,
+	<target name="clean-build-all" depends="clean, init-ant-contrib, generate-html-wrapper, copy-flex-rsls, compile-deskshare-standalone, build-mic-check,
 	                                         build-cam-check, build-conn-check, build-webcam-preview-standalone, build-webcam-view-standalone, 
 	                                         compile-bbb, branding, branding-black" 
 			description="Build BBB client including locales"/>
-	<target name="modules" depends="init-ant-contrib, generate-html-wrapper, compile-deskshare-standalone, 
+	<target name="modules" depends="init-ant-contrib, generate-html-wrapper, copy-flex-rsls, compile-deskshare-standalone, 
 	                                         build-webcam-preview-standalone, build-webcam-view-standalone, compile-bbb"
                         description="Build BBB client without locales"/>		
 	<target name="cleanandmake" depends="clean-build-all" description="Build BBB client including locales"/>
